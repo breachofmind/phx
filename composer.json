@@ -1,0 +1,15 @@
+{
+    "name": "breachofmind/phx",
+    "description": "PHX services wrapper for Laravel 5",
+    "authors": [
+        {
+            "name": "Mike Adamczyk",
+            "email": "mike.adamczyk@brightstar.com"
+        }
+    ],
+    "autoload": {
+        "psr-4" : {
+            "PHX\\" : "PHX"
+        }
+    }
+}
