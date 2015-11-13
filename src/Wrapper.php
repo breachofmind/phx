@@ -3,6 +3,7 @@ namespace PHX;
 
 use ErrorException;
 use Exception;
+use Dotenv;
 
 class Wrapper {
 
@@ -18,11 +19,6 @@ class Wrapper {
     const SESSION_DEBTID        = 'CUSTOMER_ID';
     const SESSION_LOGIN         = 'CUSTOMER_USERNAME';
 
-    /**
-     * Loaded config ini file.
-     * @var array
-     */
-    protected $ini = [];
 
     /**
      * Error messages.
@@ -30,9 +26,9 @@ class Wrapper {
      */
     protected $errorBag = [];
 
-    protected $serviceUrl;
-    protected $serviceUsername;
-    protected $servicePassword;
+    public $serviceUrl;
+    public $serviceUsername;
+    public $servicePassword;
 
     /**
      * Additional PHX service providers.
@@ -53,11 +49,9 @@ class Wrapper {
      */
     public function __construct()
     {
-        include '../inc/helpers.php';
-
-        $this->serviceUrl      = env('phx_url');
-        $this->serviceUsername = env('phx_username');
-        $this->servicePassword = env('phx_password');
+        $this->serviceUrl      = DotEnv::findEnvironmentVariable('PHX_URL');
+        $this->serviceUsername = DotEnv::findEnvironmentVariable('PHX_USER');
+        $this->servicePassword = DotEnv::findEnvironmentVariable('PHX_PASS');
 
         // Create the additional service provider instances.
         foreach ($this->providers as $provider=>$class) {

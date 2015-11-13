@@ -21,8 +21,8 @@ class SystemService extends Service {
     protected function getLoginData ()
     {
         return  [
-            'username'   => env('phx_username'),
-            'password'   => env('phx_password'),
+            'username'   => $this->phx->serviceUsername,
+            'password'   => $this->phx->servicePassword,
             'context_id' => Wrapper::CONTEXT_ID,
         ];
     }

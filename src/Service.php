@@ -92,7 +92,7 @@ class Service {
     protected function getEndpoint ($endpoint, $query=[])
     {
         $query = http_build_query($query);
-        return env('phx_url').$endpoint.($query ? "?$query" : "");
+        return $this->phx->serviceUrl.$endpoint.($query ? "?$query" : "");
     }
 
     /**
