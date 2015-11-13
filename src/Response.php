@@ -41,6 +41,16 @@ class Response {
     }
 
     /**
+     * Get the response body.
+     * @return mixed
+     */
+    public function body()
+    {
+        return $this->response;
+    }
+
+
+    /**
      * Check if there was an error with this response.
      * @return bool
      */

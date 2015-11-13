@@ -37,7 +37,7 @@ class SystemService extends Service {
         $response = $this->post('system/login', $this->getLoginData());
 
         if ($response->hasError()) {
-            throw new ErrorException('Failed to Log In To PHX Services');
+            throw new ErrorException('Failed to Log In To PHX Services using credentials: '.join(" | ",$this->getLoginData()));
         }
         $this->phx->serviceTokenID($response->access_token);
 

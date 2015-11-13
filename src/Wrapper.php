@@ -60,6 +60,17 @@ class Wrapper {
     }
 
     /**
+     * Shortcut for changing the testing URL.
+     * @param bool|true $boolean
+     */
+    public function testing($boolean=true)
+    {
+        $this->serviceUrl = $boolean
+            ? DotEnv::findEnvironmentVariable('PHX_DEV')
+            : DotEnv::findEnvironmentVariable('PHX_URL');
+    }
+
+    /**
      * Return the error message array.
      * @return array
      */

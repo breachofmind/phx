@@ -1,6 +1,7 @@
 <?php
 namespace PHX\Services;
 
+use PHX\Collection;
 use PHX\Models\Location;
 use PHX\Service;
 use PHX\Response;
@@ -21,6 +22,7 @@ class CustomerService extends Service {
     /**
      * Search for a customer.
      * @param array $criteria
+     * @return Response
      */
     public function search($criteria=[])
     {
@@ -155,20 +157,22 @@ class CustomerService extends Service {
     /**
      * Return client locations.
      * @param $id
-     * @return Response
+     * @return Collection
      */
     public function locations ($id)
     {
-        $locations = [];
         $response = $this->post("client/{$id}/division/search", [
             'active' => true,
             'order_by' => 'State, Name'
         ]);
 
-        foreach ((array)$response as $location) {
-            $locations[] = new Location($location);
+        $collection = new Collection();
+
+        foreach ($response->body() as $location) {
+            $collection->add(new Location($location));
         }
-        return $locations;
+
+        return $collection;
     }
 
 
