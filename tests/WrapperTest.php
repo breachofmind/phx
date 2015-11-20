@@ -6,12 +6,15 @@ class WrapperTest extends PHPUnit_Framework_TestCase {
     const TEST_CUSTOMER_USER    = 'accessifi_test';
     const TEST_CUSTOMER_PASS    = 'accessifi1';
     const TEST_CUSTOMER_ANSWER  = 'Sioux Falls';
+    const TEST_CUSTOMER_ACCOUNT = 'BR03914646';
 
     /**
      * The instance being tested.
      * @var Wrapper
      */
     protected $phx;
+
+    protected $loggedIn = false;
 
     /**
      * Test the main functionality of the PHX wrapper.
@@ -60,6 +63,8 @@ class WrapperTest extends PHPUnit_Framework_TestCase {
         // check if the token is being set in the wrapper.
         $this->assertNotEmpty($this->phx->serviceTokenID());
         $this->assertEquals($response->access_token, $this->phx->serviceTokenID());
+
+        $this->loggedIn = !empty($response->access_token);
     }
 
     /**
@@ -85,7 +90,8 @@ class WrapperTest extends PHPUnit_Framework_TestCase {
 
         // We should get a customer object back, once we're logged in.
         $customer = $this->phx->customer->getObject();
-        $this->assertEquals($customer->customer_id, $this->phx->customerID());
+        $this->assertInstanceOf('\PHX\Models\Customer', $customer);
+        $this->assertEquals($customer->id(), $this->phx->customerID());
 
         // Check for Login method
         $this->assertTrue($this->phx->isLoggedIn());
@@ -96,20 +102,39 @@ class WrapperTest extends PHPUnit_Framework_TestCase {
      */
     public function test_customer_sync()
     {
-        $customer = $this->phx->customer->getObject();
+        $customer = $this->phx->customer->getAccount(self::TEST_CUSTOMER_ACCOUNT);
+        $this->assertInstanceOf('\PHX\Models\Customer', $customer);
         $original = $customer->name_first;
         // Change the name, fire the sync. A good sync is true.
         $customer->name_first = "TEST";
         $this->assertTrue($customer->sync());
 
         // Grab the customer object again.
-        $customer = $this->phx->customer->getObject();
+        $customer = $this->phx->customer->getAccount(self::TEST_CUSTOMER_ACCOUNT);
         $this->assertEquals("TEST", $customer->name_first);
         // Change back
         $customer->name_first = $original;
         $this->assertTrue($customer->sync());
 
-        $customer = $this->phx->customer->getObject();
+        $customer = $this->phx->customer->getAccount(self::TEST_CUSTOMER_ACCOUNT);
         $this->assertEquals($original, $customer->name_first);
+    }
+
+    /**
+     * Test debt-related junk.
+     */
+    public function test_customer_debts()
+    {
+        if (!$this->loggedIn) {
+            $this->phx->system->login();
+        }
+
+        $customer = $this->phx->customer->getAccount(self::TEST_CUSTOMER_ACCOUNT);
+        $this->assertTrue(is_array($customer->debts));
+        $this->assertGreaterThan(0, $customer->balance());
+
+        $debtObjects = $customer->getDebts();
+        $this->assertInstanceOf('PHX\Collection', $debtObjects);
+        $this->assertGreaterThan(0, $debtObjects->count());
     }
 }

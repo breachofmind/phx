@@ -54,6 +54,10 @@ class CustomerService extends Service {
     public function getAccount($number)
     {
         $response = $this->searchAccount($number);
+        if ($response->hasError()) {
+
+            return $response;
+        }
         if (count($response->body())===1) {
             return Customer::create($response("0"));
         }

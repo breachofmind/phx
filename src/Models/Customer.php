@@ -65,7 +65,7 @@ class Customer extends Model {
     {
         $debts = new Collection();
         foreach ((array)$this->debts as $debt) {
-            $debts->add( $this->phx->debts->getObject($debt->debt_id) );
+            $debts->add( $this->phx->debt->getObject($debt->debt_id) );
         }
         return $debts;
     }
@@ -77,7 +77,7 @@ class Customer extends Model {
     public function balance()
     {
         $balance = 0;
-        foreach ($this->debts as $debt) {
+        foreach ((array)$this->debts as $debt) {
             $balance+=$debt->balance;
         }
         return $balance;

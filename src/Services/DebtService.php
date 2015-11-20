@@ -16,9 +16,9 @@ class DebtService extends Service {
     public function getObject($id)
     {
         $response = $this->get("debt/{$id}");
-        if (!$response->debt_id) {
+/*        if ($response->debt_id) {
             throw new \Exception("Debt ID '$id' not found");
-        }
+        }*/
         return Debt::create($response);
     }
 
