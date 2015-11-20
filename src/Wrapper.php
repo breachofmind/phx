@@ -5,6 +5,8 @@ use ErrorException;
 use Exception;
 use Dotenv;
 use PHX\Services\CustomerService;
+use PHX\Services\DebtService;
+use PHX\Services\SystemService;
 
 class Wrapper {
 
@@ -37,10 +39,22 @@ class Wrapper {
     protected $errorBag = [];
 
     /**
-     * Service instance.
+     * CustomerService instance.
      * @var CustomerService
      */
     public $customer;
+
+    /**
+     * DebtService instance.
+     * @var DebtService
+     */
+    public $debts;
+
+    /**
+     * SystemService instance.
+     * @var SystemService
+     */
+    public $system;
 
     /**
      * Service URL credentials.

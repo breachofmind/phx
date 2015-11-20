@@ -90,4 +90,26 @@ class WrapperTest extends PHPUnit_Framework_TestCase {
         // Check for Login method
         $this->assertTrue($this->phx->isLoggedIn());
     }
+
+    /**
+     * Test changing customer data.
+     */
+    public function test_customer_sync()
+    {
+        $customer = $this->phx->customer->getObject();
+        $original = $customer->name_first;
+        // Change the name, fire the sync. A good sync is true.
+        $customer->name_first = "TEST";
+        $this->assertTrue($customer->sync());
+
+        // Grab the customer object again.
+        $customer = $this->phx->customer->getObject();
+        $this->assertEquals("TEST", $customer->name_first);
+        // Change back
+        $customer->name_first = $original;
+        $this->assertTrue($customer->sync());
+
+        $customer = $this->phx->customer->getObject();
+        $this->assertEquals($original, $customer->name_first);
+    }
 }

@@ -75,9 +75,7 @@ class Response {
      */
     public function hasError()
     {
-        return empty($this->response)
-        || !isset($this->response->access_token)
-        || empty($this->response->access_token);
+        return empty($this->response) || !empty($this->errors);
     }
 
     /**

@@ -16,5 +16,14 @@ class Debt extends Model {
         return (int)$this->debt_id;
     }
 
+    /**
+     * Return the transactions around this debt.
+     * @param $id string debt id
+     * @return Response
+     */
+    public function transactions()
+    {
+        return $this->phx->debts->transactions($this->id());
+    }
 
 }

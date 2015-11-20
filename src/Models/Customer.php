@@ -7,6 +7,23 @@ use PHX\Collection;
 
 class Customer extends Model {
 
+    /**
+     * Attributes that can be synced.
+     * @var array
+     */
+    protected $fillable = [
+        'name_prefix',
+        'name_first',
+        'name_middle',
+        'name_last',
+        'name_suffix',
+        'date_of_birth',
+        'addresses',
+        'phones',
+        'emails',
+        'sticky_note',
+        'attributes'
+    ];
 
     /**
      * Returns the security question id and text.
@@ -65,5 +82,27 @@ class Customer extends Model {
         }
         return $balance;
     }
+
+    /**
+     * Updates Customer Information (partial accepted)
+     * @param $params array
+     * @return boolean|string
+     */
+    public function update($params=[])
+    {
+        $id = $this->id();
+        return $this->phx->system->put("customer/$id", $params);
+    }
+
+    /**
+     * Sync the current state of this model with the database.
+     * @return boolean|string
+     */
+    public function sync()
+    {
+        return $this->update( $this->getFillableFields($this->attributes) );
+    }
+
+
 
 }

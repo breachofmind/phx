@@ -20,8 +20,8 @@ class CustomerService extends Service {
     {
         $id = $this->phx->customerID();
         $response = $this->get("customer/{$id}");
-        if (!$response->customer_id) {
-            throw new \Exception("Customer '$id' not found");
+        if ($response->hasError()) {
+            return $response;
         }
         return Customer::create($response);
     }
@@ -34,6 +34,30 @@ class CustomerService extends Service {
     public function search($criteria=[])
     {
         return $this->post("customer/search", $criteria);
+    }
+
+    /**
+     * Look up a customer by the account number.
+     * @param $number
+     * @return Response
+     */
+    public function searchAccount($number)
+    {
+        return $this->search(['account_number'=>$number]);
+    }
+
+    /**
+     * Get a customer object given the account number.
+     * @param $number string
+     * @return Customer|null
+     */
+    public function getAccount($number)
+    {
+        $response = $this->searchAccount($number);
+        if (count($response->body())===1) {
+            return Customer::create($response("0"));
+        }
+        return null;
     }
 
 
@@ -111,42 +135,7 @@ class CustomerService extends Service {
     }
 
 
-    /**
-     * Updates Customer Information (partial accepted)
-     *
-     * "name_prefix": "Mr.",
-     * "name_first": "Chris",
-     * "name_middle": "D",
-     * "name_last": "Jeffcoat",
-     * "name_suffix": "jr",
-     * "date_of_birth": "1971-05-29",
-     * "addresses": [
-     *         { type='mailing',"line_1": "5109 S Broadband Ave","line_2": "","city": "Sioux Falls","state": "SD","zipcode": "57108","zipplus4": "1221"},
-     *         { type='physical',"line_1": "5109 S Broadband Ave","line_2": "","city": "Sioux Falls","state": "SD","zipcode": "57108","zipplus4": "1221"}
-     *     ],
-     * "phones": [
-     *         {type="home" "number": "6051111111" extension=""},
-     *         {type="work" "number": "6052222222" extension=""},
-     *         {type="cell" "number": "6053333333" extension=""},
-     *         {type="other" "number": "6054444444" extension=""}
-     *         ],
-     * "emails": [
-     *         {type="home" "email": "mwheeler@tcisolutions.com"},
-     *         {type="work" "email": "mwheeler@gmailnoemail.com"}
-     *         ],
-     * "sticky_note": "This is a test account",
-     * "attributes":[
-     *         {"name": "EStatements" value:"1"},
-     *         {"name": "PaymentReminderDays" value:"8"}
-     * ]
-     * @param $id string
-     * @param $params array
-     * @return Response
-     */
-    public function update($id,$params=[])
-    {
-        return $this->put("customer/$id", $params);
-    }
+
 
 
     /**

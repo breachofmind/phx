@@ -12,6 +12,12 @@ class Model implements ArrayAccess, JsonSerializable
     protected $phx;
 
     /**
+     * Fields that are mass-assignable.
+     * @var array
+     */
+    protected $fillable = [];
+
+    /**
      * Array of attributes.
      * @var array
      */
@@ -51,7 +57,7 @@ class Model implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * Magic getter.
+     * Get an attribute.
      * @param $name string
      * @return null
      */
@@ -60,6 +66,16 @@ class Model implements ArrayAccess, JsonSerializable
         return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
     }
 
+    /**
+     * Set an attribute.
+     * @param $name string
+     * @param $value mixed
+     * @return mixed
+     */
+    public function __set($name,$value)
+    {
+        return $this->attributes[$name] = $value;
+    }
 
     /**
      * Determine if an item exists at an offset.
@@ -126,5 +142,21 @@ class Model implements ArrayAccess, JsonSerializable
     function __toString()
     {
         return json_encode($this->attributes);
+    }
+
+    /**
+     * Modify the input params to just use fields that are fillable/mass-assignable.
+     * @param $params array
+     * @return array
+     */
+    protected function getFillableFields($params=[])
+    {
+        $out = [];
+        foreach ($params as $key=>$value) {
+            if (in_array($key,$this->fillable)) {
+                $out[$key] = $value;
+            }
+        }
+        return $out;
     }
 }

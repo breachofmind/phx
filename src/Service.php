@@ -25,8 +25,8 @@ class Service {
      */
     protected function send ($endpoint,$method="POST",$data=[])
     {
+        $query = [];
         $query['access_token'] = $data['access_token'] = $this->phx->serviceTokenID();
-
 
         $options = [
           CURLOPT_CUSTOMREQUEST  => $method,
@@ -74,13 +74,19 @@ class Service {
 
     /**
      * Send a PUT request.
+     * Response should be true if all is well.
      * @param $endpoint string
      * @param array $data
-     * @return Response
+     * @return boolean
+     * @throws \HttpException
      */
     public function put ($endpoint,$data=[])
     {
-        return $this->send($endpoint,"PUT",$data);
+        $response = $this->send($endpoint,"PUT",$data);
+        if ($response->msg !== "done") {
+            return $response;
+        }
+        return true;
     }
 
     /**
