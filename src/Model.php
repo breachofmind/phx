@@ -5,11 +5,36 @@ use JsonSerializable;
 
 class Model implements ArrayAccess, JsonSerializable
 {
+    /**
+     * The PHX wrapper instance.
+     * @var Wrapper
+     */
+    protected $phx;
+
+    /**
+     * Array of attributes.
+     * @var array
+     */
     protected $attributes = [];
 
     public function __construct($response)
     {
+        if ($response instanceof Response) {
+            $response = $response->body();
+        }
         $this->fill($response);
+        $this->phx = Wrapper::$instance;
+    }
+
+    /**
+     * Named constructor.
+     * @param $response array|Response
+     * @return mixed
+     */
+    public static function create($response)
+    {
+        $class = get_called_class();
+        return new $class($response);
     }
 
     /**
@@ -25,6 +50,11 @@ class Model implements ArrayAccess, JsonSerializable
         return $this;
     }
 
+    /**
+     * Magic getter.
+     * @param $name string
+     * @return null
+     */
     public function __get($name)
     {
         return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
@@ -80,8 +110,21 @@ class Model implements ArrayAccess, JsonSerializable
         unset($this->attributes[$key]);
     }
 
+    /**
+     * Implementation of jsonSerialize. Returns attributes to serialize.
+     * @return array
+     */
     function jsonSerialize()
     {
         return $this->attributes;
+    }
+
+    /**
+     * Returns this object as a JSON-encoded string.
+     * @return string
+     */
+    function __toString()
+    {
+        return json_encode($this->attributes);
     }
 }

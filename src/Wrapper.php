@@ -4,11 +4,15 @@ namespace PHX;
 use ErrorException;
 use Exception;
 use Dotenv;
+use PHX\Services\CustomerService;
 
 class Wrapper {
 
+    static $instance;
+
     const SERVICE_TIMEOUT   = 120;
     const CONTEXT_ID        = 10008;
+
     /**
      * Session variable names.
      * @var string
@@ -19,6 +23,12 @@ class Wrapper {
     const SESSION_DEBTID        = 'CUSTOMER_ID';
     const SESSION_LOGIN         = 'CUSTOMER_USERNAME';
 
+    /**
+     * Web Service endpoints.
+     * @var string
+     */
+    const SERVICE_URL           = "https://phxservices.ws.totalcardinc.com/";
+    const SERVICE_URL_DEV       = "https://phxservices.staging.ws.totalcardinc.com/";
 
     /**
      * Error messages.
@@ -26,9 +36,25 @@ class Wrapper {
      */
     protected $errorBag = [];
 
+    /**
+     * Service instance.
+     * @var CustomerService
+     */
+    public $customer;
+
+    /**
+     * Service URL credentials.
+     * @var string
+     */
     public $serviceUrl;
     public $serviceUsername;
     public $servicePassword;
+
+    /**
+     * Are we running in test mode?
+     * @var bool
+     */
+    public $isTest = false;
 
     /**
      * Additional PHX service providers.
@@ -45,11 +71,14 @@ class Wrapper {
 
     /**
      * Constructor.
+     * Sets up the environment login and service class instances.
      * @throws ErrorException
      */
     public function __construct()
     {
-        $this->serviceUrl      = DotEnv::findEnvironmentVariable('PHX_URL');
+        static::$instance = $this;
+
+        $this->testing(DotEnv::findEnvironmentVariable('PHX_ENV')==="testing");
         $this->serviceUsername = DotEnv::findEnvironmentVariable('PHX_USER');
         $this->servicePassword = DotEnv::findEnvironmentVariable('PHX_PASS');
 
@@ -65,9 +94,27 @@ class Wrapper {
      */
     public function testing($boolean=true)
     {
+        $this->isTest = $boolean;
         $this->serviceUrl = $boolean
-            ? DotEnv::findEnvironmentVariable('PHX_DEV')
-            : DotEnv::findEnvironmentVariable('PHX_URL');
+            ? self::SERVICE_URL_DEV
+            : self::SERVICE_URL;
+    }
+
+    /**
+     * Named constructor for connecting.
+     * @param $user string (customer)
+     * @param $pass string (customer)
+     * @param $answer string (customer)
+     * @return Wrapper
+     */
+    public static function connect($user=null,$pass=null,$answer=null)
+    {
+        $phx = new static();
+        $phx->system->login();
+        if ($user) {
+            $phx->customer->login($user,$pass,$answer);
+        }
+        return $phx;
     }
 
     /**
@@ -88,7 +135,7 @@ class Wrapper {
      */
     public function sessionVar ($name, $value=null)
     {
-        if (is_string($value)) {
+        if (!is_null($value)) {
             $_SESSION[$name] = $value;
         }
         return isset($_SESSION[$name]) && !empty($_SESSION[$name]) ? $_SESSION[$name] : null;

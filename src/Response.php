@@ -7,12 +7,15 @@ class Response {
 
     protected $request;
 
+    protected $raw;
+
     /**
      * PHXResponse constructor.
      * @param string $response
      */
     public function __construct($response, $request=null)
     {
+        $this->raw = $response;
         $this->response = json_decode($response);
         $this->request  = $request;
     }
@@ -47,6 +50,22 @@ class Response {
     public function body()
     {
         return $this->response;
+    }
+
+    public function __invoke($dotIndex)
+    {
+        $parts = explode(".",$dotIndex);
+        $val = $this->response;
+        foreach ($parts as $key) {
+            if (is_array($val) && isset($val[$key])) {
+                $val = $val[$key];
+            } elseif (isset($val->$key)) {
+                $val = $val->$key;
+            } else {
+                return null;
+            }
+        }
+        return $val;
     }
 
 
@@ -115,4 +134,12 @@ class Response {
         return $this->toJson();
     }
 
+    /**
+     * Return the raw response string.
+     * @return string
+     */
+    public function toRaw()
+    {
+        return $this->raw;
+    }
 }

@@ -2,6 +2,7 @@
 namespace PHX\Services;
 
 use PHX\Collection;
+use PHX\Models\Customer;
 use PHX\Models\Location;
 use PHX\Service;
 use PHX\Response;
@@ -12,11 +13,17 @@ class CustomerService extends Service {
 
     /**
      * Get a customer.
-     * @return Response
+     * @return Customer
+     * @throws \Exception
      */
     public function getObject()
     {
-        return $this->get("customer/".$this->phx->customerID());
+        $id = $this->phx->customerID();
+        $response = $this->get("customer/{$id}");
+        if (!$response->customer_id) {
+            throw new \Exception("Customer '$id' not found");
+        }
+        return Customer::create($response);
     }
 
     /**

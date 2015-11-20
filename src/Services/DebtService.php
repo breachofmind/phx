@@ -3,18 +3,23 @@ namespace PHX\Services;
 
 use PHX\Response;
 use PHX\Service;
+use PHX\Models\Debt;
 
 class DebtService extends Service {
 
 
     /**
-     * Return the debt by id.
-     * @param $id string debt id
-     * @return Response
+     * Get a debt object.
+     * @return Debt
+     * @throws \Exception
      */
-    public function object($id)
+    public function getObject($id)
     {
-        return $this->get("debt/{$id}");
+        $response = $this->get("debt/{$id}");
+        if (!$response->debt_id) {
+            throw new \Exception("Debt ID '$id' not found");
+        }
+        return Debt::create($response);
     }
 
     /**
